@@ -34,9 +34,18 @@ steps:
       Contents: '*.json'
       TargetFolder: '$(Build.ArtifactStagingDirectory)/Templates'
 
+  # Publish the 'drop' artifact, which includes the archived zip file
   - task: PublishBuildArtifacts@1
     displayName: 'Publish Artifact: drop'
     inputs:
       pathToPublish: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
       artifactName: 'drop'
+      publishLocation: 'Container'
+
+  # Publish the Templates folder (this is your ARM template folder)
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish Artifact: Templates'
+    inputs:
+      pathToPublish: '$(Build.ArtifactStagingDirectory)/Templates'
+      artifactName: 'Templates'
       publishLocation: 'Container'
