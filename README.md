@@ -1,3 +1,4 @@
+[![Build Status](https://dev.azure.com/ecouncillabs/GitIntegration/_apis/build/status%2Fecdetest.ContosoAir1?branchName=master)](https://dev.azure.com/ecouncillabs/GitIntegration/_build/latest?definitionId=70&branchName=master)
 # This project is retired, archived, and no longer supported. You are welcome to continue to use and fork the repository.
 
 
