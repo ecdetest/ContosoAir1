@@ -1,39 +1,42 @@
-pool: 
-  vmImage: 'ubuntu-latest'
+pool: Default
 
 trigger:
   - master
 
-variables:
-  system.debug: true
-
 steps:
-  - task: UseNode@1
+  - task: PublishTestResults@2
+    displayName: 'Publish Test Results'
+    condition: succeededOrFailed()
     inputs:
-      versionSpec: '16.x'  # You can specify the version you need here
-    displayName: 'Install Node.js'
+      testResultsFiles: '$(System.DefaultWorkingDirectory)/test-report.xml'
+
+  - task: PublishCodeCoverageResults@1
+    displayName: 'Publish Code Coverage'
+    condition: eq(variables['Build.SourceBranchName'], 'master')
+    inputs:
+      codeCoverageTool: Cobertura
+      summaryFileLocation: '$(System.DefaultWorkingDirectory)/coverage/*coverage.xml'
+      reportDirectory: '$(System.DefaultWorkingDirectory)/coverage'
+
+  - task: ArchiveFiles@2
+    displayName: 'Archive sources'
+    inputs:
+      rootFolderOrFile: '$(Build.SourcesDirectory)'
+      includeRootFolder: false
+      archiveType: 'zip'
+      archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
+      replaceExistingArchive: testResultsFiles
 
   - task: CopyFiles@2
-    displayName: 'Copy Files to: $(Build.ArtifactStagingDirectory)/Templates'
+    displayName: 'Copy ARM templates'
     inputs:
       SourceFolder: 'deployment'
       Contents: '*.json'
       TargetFolder: '$(Build.ArtifactStagingDirectory)/Templates'
 
-  - task: Npm@1
-    displayName: 'Install npm packages'
-    inputs:
-      command: 'install'
-
-  - task: ArchiveFiles@2
-    displayName: 'Archive $(Build.SourcesDirectory)'
-    inputs:
-      rootFolderOrFile: '$(Build.SourcesDirectory)'
-      includeRootFolder: false
-
   - task: PublishBuildArtifacts@1
     displayName: 'Publish Artifact: drop'
     inputs:
-      PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+      pathToPublish: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
       artifactName: 'drop'
       publishLocation: 'Container'
